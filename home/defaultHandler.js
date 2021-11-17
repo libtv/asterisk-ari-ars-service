@@ -14,6 +14,7 @@ export default async function defaultHandler(req, res) {
     const key = body.key;
     const mySesison = sequence++;
     endSession[mySesison] = true;
+    let channel;
 
     const setTimer = setTimeout(() => {
         delete endSession[mySesison];
@@ -25,19 +26,19 @@ export default async function defaultHandler(req, res) {
         return res.end(JSON.stringify(getResponse(RESPONSE_NOTEXSISKEY_CODE)));
     }
 
-    axios.post(`http://localhost:8088/ari/channels?endpoint=SIP%2F${phoneNumber}&extension=${EXTENSION}&context=${CONTEXT}&priority=${PRIORITY}&timeout=30&api_key=${ASTERISK_KEY}`).catch((err) => {
-        clearTimeout(setTimer);
-        delete endSession[mySesison];
-        return res.end(JSON.stringify(getResponse(RESPONSE_KNOWNERROR_CODE)));
-    });
+    axios
+        .post(`http://localhost:8088/ari/channels?endpoint=SIP%2F${phoneNumber}&extension=${EXTENSION}&context=${CONTEXT}&priority=${PRIORITY}&timeout=30&api_key=${ASTERISK_KEY}`)
+        .then((res) => {
+            channel = res.data.name;
+        })
+        .catch((err) => {
+            clearTimeout(setTimer);
+            delete endSession[mySesison];
+            return res.end(JSON.stringify(getResponse(RESPONSE_KNOWNERROR_CODE)));
+        });
 
     ari.on("success", (data) => {
-        let ariChannel = data.phoneNumber;
-        let sliceFirst = ariChannel.indexOf("SIP/");
-        let sliceLast = ariChannel.indexOf("-");
-        let ariPhoneNumber = ariChannel.slice(sliceFirst + 4, sliceLast);
-
-        if (ariPhoneNumber === phoneNumber && endSession[mySesison]) {
+        if (data.channel === channel && endSession[mySesison]) {
             clearTimeout(setTimer);
             const successObj = Object.assign({}, RESULT);
             successObj.result.resultCode = "00";

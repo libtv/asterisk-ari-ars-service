@@ -48,7 +48,7 @@ class ARSapp extends EventEmitter {
             if (self.dtmf[channel.id].length === 4) {
                 const data = {
                     dtmf: self.dtmf[channel.id],
-                    phoneNumber: channel.name,
+                    channel: channel.name,
                 };
                 self.emit("success", data);
 
