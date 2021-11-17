@@ -22,6 +22,7 @@ export default async function defaultHandler(req, res) {
     }, 20000);
 
     if (key !== "123456") {
+		clearTimeout(setTimer);
         delete endSession[mySesison];
         return res.end(JSON.stringify(getResponse(RESPONSE_NOTEXSISKEY_CODE)));
     }
