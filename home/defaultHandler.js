@@ -27,7 +27,7 @@ export default async function defaultHandler(req, res) {
     }
 
     axios
-        .post(`http://localhost:8088/ari/channels?endpoint=SIP%2F${phoneNumber}&extension=${EXTENSION}&context=${CONTEXT}&priority=${PRIORITY}&timeout=30&api_key=${ASTERISK_KEY}`)
+        .post(`http://localhost:8088/ari/channels?endpoint=PJSIP/${phoneNumber}@sst&extension=${EXTENSION}&context=${CONTEXT}&priority=${PRIORITY}&timeout=30&api_key=${ASTERISK_KEY}&callerId=16880001`)
         .then((res) => {
             channel = res.data.name;
         })
